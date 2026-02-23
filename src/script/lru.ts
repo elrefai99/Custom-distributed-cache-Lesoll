@@ -1,33 +1,40 @@
-export class LRUCache {
-     private maxSize: number;
-     private map: Map<string, { value: any; expiresAt: number | null; createdAt: number }>;
-     constructor(maxSize = 1000) {
+import { CacheEntry } from "../Common/interface";
+
+export class LRUCache<T = unknown> {
+     private readonly maxSize: number;
+     private readonly map: Map<string, CacheEntry<T>>;
+
+     constructor(maxSize = 1_000) {
           this.maxSize = maxSize;
           this.map = new Map();
      }
 
-     public get(key: string) {
+     get(key: string): CacheEntry<T> | undefined {
           if (!this.map.has(key)) return undefined;
-          const entry: { value: any; expiresAt: number | null; createdAt: number } = this.map.get(key)!;
 
-          if (entry.expiresAt && Date.now() > entry.expiresAt) {
+          const entry = this.map.get(key)!;
+
+          if (entry.expiresAt !== null && Date.now() > entry.expiresAt) {
                this.map.delete(key);
                return undefined;
           }
 
           this.map.delete(key);
           this.map.set(key, entry);
+
           return entry;
      }
 
-     public set(key: string, value: any, ttlMs: number | null = null) {
+     has(key: string): boolean {
+          return this.get(key) !== undefined;
+     }
+
+     set(key: string, value: T, ttlMs: number | null = null): void {
           if (this.map.size >= this.maxSize && !this.map.has(key)) {
-               const firstKey: string = this.map.keys().next().value!;
-               this.map.delete(firstKey);
+               const lruKey = this.map.keys().next().value as string;
+               this.map.delete(lruKey);
           }
-
-          if (this.map.has(key)) this.map.delete(key);
-
+          this.map.delete(key);
           this.map.set(key, {
                value,
                expiresAt: ttlMs ? Date.now() + ttlMs : null,
@@ -35,38 +42,38 @@ export class LRUCache {
           });
      }
 
-     public delete(key: string) {
+     delete(key: string): boolean {
           return this.map.delete(key);
      }
 
-     public has(key: string) {
-          const entry = this.get(key);
-          return entry !== undefined;
+     flush(): void {
+          this.map.clear();
      }
 
-     public keys() {
+     keys(): string[] {
           return [...this.map.keys()];
      }
 
-     public size() {
+     size(): number {
           return this.map.size;
      }
 
-     public snapshot() {
-          const out: { [key: string]: { value: any; expiresAt: number | null; createdAt: number } } = {};
+     snapshot(): Record<string, CacheEntry<T>> {
+          const now = Date.now();
+          const out: Record<string, CacheEntry<T>> = {};
           for (const [k, v] of this.map) {
-               if (!v.expiresAt || Date.now() <= v.expiresAt) {
+               if (v.expiresAt === null || now <= v.expiresAt) {
                     out[k] = v;
                }
           }
           return out;
      }
 
-     public purgeExpired() {
+     purgeExpired(): number {
           const now = Date.now();
           let purged = 0;
           for (const [k, v] of this.map) {
-               if (v.expiresAt && now > v.expiresAt) {
+               if (v.expiresAt !== null && now > v.expiresAt) {
                     this.map.delete(k);
                     purged++;
                }
