@@ -12,6 +12,9 @@ importers:
         specifier: ^3.3.0
         version: 3.3.0
     devDependencies:
+      '@mohamed-elrefai/tsconfigs':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@types/events':
         specifier: ^3.0.3
         version: 3.0.3
@@ -38,6 +41,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
+  '@mohamed-elrefai/tsconfigs@1.0.2':
+    resolution: {integrity: sha512-buZWqEEA8ciLN9nQTXJo4gmJWOdqvTxORzPJmlau6kferRHfkfVsr29rktPWPk4YOeCIzYrXN5Bocrph3STYCg==}
+
   '@tsconfig/node10@1.0.12':
     resolution: {integrity: sha512-UCYBaeFvM11aU2y3YPZ//O5Rhj+xKyzy7mvcIoAjASbigy8mHMryP5cK7dgjlz2hWxh1g5pLw084E0a/wlUSFQ==}
 
@@ -47,8 +53,21 @@ packages:
   '@tsconfig/node14@1.0.3':
     resolution: {integrity: sha512-ysT8mhdixWK6Hw3i1V2AeRqZ5WfXg1G43mqoYlM2nc6388Fq5jcXyr5mRsqViLx/GJYdoL0bfXD8nmF+Zn/Iow==}
 
+  '@tsconfig/node16-strictest@1.0.4':
+    resolution: {integrity: sha512-kp6/DuAoKzHVv5U+p0uOesYbjrEvrYVNdQMl163a+yXXUv9twabvkCGEn3pmVxKXB45JU5MPGolDDWnONZL5ZQ==}
+    deprecated: TypeScript 5.0 supports combining TSConfigs using array syntax in extends
+
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
+
+  '@tsconfig/node20@20.1.9':
+    resolution: {integrity: sha512-IjlTv1RsvnPtUcjTqtVsZExKVq+KQx4g5pCP5tI7rAs6Xesl2qFwSz/tPDBC4JajkL/MlezBu3gPUwqRHl+RIg==}
+
+  '@tsconfig/node22@22.0.5':
+    resolution: {integrity: sha512-hLf2ld+sYN/BtOJjHUWOk568dvjFQkHnLNa6zce25GIH+vxKfvTgm3qpaH6ToF5tu/NN0IH66s+Bb5wElHrLcw==}
+
+  '@tsconfig/node23@23.0.4':
+    resolution: {integrity: sha512-19Wzl9zYgJL4yQelkeIPhLYk8KKHjlxwf2lAil5PvOuLa+9rvl4k2aVFaFOe/6GsUMnG0miHelYOiGfUjBvplg==}
 
   '@types/events@3.0.3':
     resolution: {integrity: sha512-trOc4AAUThEz9hapPtSd7wf5tiQKvTtu5b371UxXdTuqzIh0ArcRspRP0i0Viu+LXstIQ1z96t1nsPxT9ol01g==}
@@ -126,13 +145,28 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@mohamed-elrefai/tsconfigs@1.0.2':
+    dependencies:
+      '@tsconfig/node16-strictest': 1.0.4
+      '@tsconfig/node20': 20.1.9
+      '@tsconfig/node22': 22.0.5
+      '@tsconfig/node23': 23.0.4
+
   '@tsconfig/node10@1.0.12': {}
 
   '@tsconfig/node12@1.0.11': {}
 
   '@tsconfig/node14@1.0.3': {}
 
+  '@tsconfig/node16-strictest@1.0.4': {}
+
   '@tsconfig/node16@1.0.4': {}
+
+  '@tsconfig/node20@20.1.9': {}
+
+  '@tsconfig/node22@22.0.5': {}
+
+  '@tsconfig/node23@23.0.4': {}
 
   '@types/events@3.0.3': {}
 
