@@ -12,7 +12,7 @@ export interface CacheNodeOptions {
      heartbeatIntervalMs?: number;
 }
 
-export class CacheNode {
+export class elrefaiNode {
      readonly nodeId: string;
      private cache: LocalCache;
      private ring: ConsistentHashRing;
@@ -22,7 +22,7 @@ export class CacheNode {
      private heartbeatInterval: NodeJS.Timeout | null = null;
 
      constructor(private readonly options: CacheNodeOptions) {
-          this.nodeId = options.nodeId ?? uuid();
+          this.nodeId = options.nodeId ?? uuid().split('-').join('');
           this.cache = new LocalCache(this.nodeId);
           this.ring = new ConsistentHashRing();
           this.ring.addNode(this.nodeId);
@@ -194,7 +194,7 @@ export class CacheNode {
 
      private remoteGet<T>(nodeId: string, key: string): Promise<T | null> {
           return new Promise((resolve) => {
-               const requestId = uuid();
+               const requestId = uuid().split('-').join('');
                const timeout = setTimeout(() => {
                     this.pendingRequests.delete(requestId);
                     resolve(null);
