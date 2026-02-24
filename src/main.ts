@@ -1,27 +1,42 @@
 import { elrefaiNode } from './core/cache-node';
 
-async function main() {
-     const node1: elrefaiNode = new elrefaiNode({ host: '127.0.0.1', port: 30000, replicationFactor: 2 });
-     await new Promise(r => setTimeout(r, 500));
+export * from './core/cache-node';
+export * from './core/local-cache';
+export * from './core/consistent-hash';
 
-     node1.connectToPeer('127.0.0.1', 30000);
+const isMainModule = require.main === module;
 
-     await new Promise(r => setTimeout(r, 500));
+if (isMainModule || process.env.RUN_AS_SERVER === 'true') {
+     const port = parseInt(process.env.PORT || '30000');
+     const host = process.env.HOST || '127.0.0.1';
+     const nodeId = process.env.NODE_ID;
+     const replicationFactor = parseInt(process.env.REPLICATION_FACTOR || '2');
 
-     await node1.set('user:123', { name: 'Alice', role: 'admin' }, 60);
-     await node1.set('session:abc', 'token-xyz', 30000);
+     const node = new elrefaiNode({
+          nodeId,
+          host,
+          port,
+          replicationFactor
+     });
 
-     const user = await node1.get<{ name: string }>('user:123');
-     console.log('Got from node2:', user);
+     if (process.env.PEERS) {
+          const peers = process.env.PEERS.split(',');
+          peers.forEach(peerStr => {
+               const [peerHost, peerPort] = peerStr.split(':');
+               if (peerHost && peerPort) {
+                    console.log(`[${node.nodeId}] Attempting to connect to peer ${peerHost}:${peerPort}...`);
+                    node.connectToPeer(peerHost, parseInt(peerPort));
+               }
+          });
+     }
 
-     const session = await node1.get<string>('session:abc');
-     console.log('Got from node3:', session);
+     process.on('SIGINT', async () => {
+          console.log(`\n[${node.nodeId}] Shutting down gracefully...`);
+          await node.shutdown();
+          process.exit(0);
+     });
 
-     console.log('Node1 stats:', node1.getStats());
-
-     setTimeout(async () => {
-          await Promise.all([node1.shutdown()]);
-     }, 5000);
+     process.on('unhandledRejection', (reason, promise) => {
+          console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+     });
 }
-
-main().catch(console.error);

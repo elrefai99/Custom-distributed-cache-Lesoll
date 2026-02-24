@@ -1,0 +1,74 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.LocalCache = void 0;
+const events_1 = require("events");
+class LocalCache extends events_1.EventEmitter {
+    constructor(nodeId, cleanupIntervalMs = 5000) {
+        super();
+        this.nodeId = nodeId;
+        this.store = new Map();
+        this.stats = { hits: 0, misses: 0 };
+        this.cleanupInterval = setInterval(() => this.evictExpired(), cleanupIntervalMs);
+    }
+    set(key, value, ttlMs) {
+        const existing = this.store.get(key);
+        const entry = {
+            value,
+            expiresAt: ttlMs ? Date.now() + ttlMs : null,
+            createdAt: Date.now(),
+            version: existing ? existing.version + 1 : 1,
+        };
+        this.store.set(key, entry);
+        this.emit('set', key, entry);
+    }
+    get(key) {
+        const entry = this.store.get(key);
+        if (!entry) {
+            this.stats.misses++;
+            return null;
+        }
+        if (entry.expiresAt && Date.now() > entry.expiresAt) {
+            this.store.delete(key);
+            this.stats.misses++;
+            this.emit('expired', key);
+            return null;
+        }
+        this.stats.hits++;
+        return entry.value;
+    }
+    delete(key) {
+        const deleted = this.store.delete(key);
+        if (deleted)
+            this.emit('delete', key);
+        return deleted;
+    }
+    has(key) {
+        return this.get(key) !== null;
+    }
+    getEntry(key) {
+        return this.store.get(key);
+    }
+    setEntry(key, entry) {
+        this.store.set(key, entry);
+    }
+    getAll() {
+        return new Map(this.store);
+    }
+    getStats() {
+        return Object.assign(Object.assign({}, this.stats), { size: this.store.size, nodeId: this.nodeId });
+    }
+    evictExpired() {
+        const now = Date.now();
+        for (const [key, entry] of this.store) {
+            if (entry.expiresAt && now > entry.expiresAt) {
+                this.store.delete(key);
+                this.emit('expired', key);
+            }
+        }
+    }
+    destroy() {
+        clearInterval(this.cleanupInterval);
+    }
+}
+exports.LocalCache = LocalCache;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoibG9jYWwtY2FjaGUuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi8uLi9zcmMvY29yZS9sb2NhbC1jYWNoZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOzs7QUFBQSxtQ0FBc0M7QUFHdEMsTUFBYSxVQUFXLFNBQVEscUJBQVk7SUFLdkMsWUFBNkIsTUFBYyxFQUFFLGlCQUFpQixHQUFHLElBQUk7UUFDaEUsS0FBSyxFQUFFLENBQUM7UUFEZ0IsV0FBTSxHQUFOLE1BQU0sQ0FBUTtRQUpuQyxVQUFLLEdBQUcsSUFBSSxHQUFHLEVBQXNCLENBQUM7UUFDdEMsVUFBSyxHQUFHLEVBQUUsSUFBSSxFQUFFLENBQUMsRUFBRSxNQUFNLEVBQUUsQ0FBQyxFQUFFLENBQUM7UUFLbEMsSUFBSSxDQUFDLGVBQWUsR0FBRyxXQUFXLENBQUMsR0FBRyxFQUFFLENBQUMsSUFBSSxDQUFDLFlBQVksRUFBRSxFQUFFLGlCQUFpQixDQUFDLENBQUM7SUFDdEYsQ0FBQztJQUVELEdBQUcsQ0FBSSxHQUFXLEVBQUUsS0FBUSxFQUFFLEtBQWM7UUFDdkMsTUFBTSxRQUFRLEdBQUcsSUFBSSxDQUFDLEtBQUssQ0FBQyxHQUFHLENBQUMsR0FBRyxDQUFDLENBQUM7UUFDckMsTUFBTSxLQUFLLEdBQWtCO1lBQ3hCLEtBQUs7WUFDTCxTQUFTLEVBQUUsS0FBSyxDQUFDLENBQUMsQ0FBQyxJQUFJLENBQUMsR0FBRyxFQUFFLEdBQUcsS0FBSyxDQUFDLENBQUMsQ0FBQyxJQUFJO1lBQzVDLFNBQVMsRUFBRSxJQUFJLENBQUMsR0FBRyxFQUFFO1lBQ3JCLE9BQU8sRUFBRSxRQUFRLENBQUMsQ0FBQyxDQUFDLFFBQVEsQ0FBQyxPQUFPLEdBQUcsQ0FBQyxDQUFDLENBQUMsQ0FBQyxDQUFDO1NBQ2hELENBQUM7UUFDRixJQUFJLENBQUMsS0FBSyxDQUFDLEdBQUcsQ0FBQyxHQUFHLEVBQUUsS0FBSyxDQUFDLENBQUM7UUFDM0IsSUFBSSxDQUFDLElBQUksQ0FBQyxLQUFL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

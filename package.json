@@ -3,8 +3,9 @@
   "version": "0.2.1",
   "main": "index.js",
   "scripts": {
-    "start": "npx ts-node src/main.ts",
-    "dev": "npx nodemon src/main.ts"
+    "start": "node dist/src/main.js",
+    "dev": "npx nodemon src/main.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",

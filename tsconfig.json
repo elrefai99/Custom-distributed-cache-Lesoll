@@ -1,7 +1,7 @@
 {
   "extends": "@mohamed-elrefai/tsconfigs",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": "./",
     "outDir": "dist",
     "typeRoots": [
       "./src/types",
